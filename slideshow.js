@@ -39,7 +39,7 @@ d3.select("svg").append("g")
 .attr("x", 0 - (height / 2))
 .attr("dy", "1em")
 .style("text-anchor", "middle")
-.text("Group 1 income (2005 PPP)"); 
+.text("Group 1 income (2005 PPP)");
 
 var div = d3.select("body").append("div")
 .attr("class", "tooltip")
@@ -75,9 +75,8 @@ function plot_lines() {
 
 function color_line(y2, x2, y1, x1) {
     
-    //var slope = (y2 - y1) / Math.abs(x2 - x1)
     var ratio_change = x1/y1 - x2/y2
-    
+
     if (ratio_change > 0) {
         return "green"
     }
@@ -99,12 +98,15 @@ function plot_circles() {
     .attr("cx", function(d, i) { return x(d.Group10) })
     .attr("cy", function(d, i) { return y(d.Group1) })
     .style("fill", colors[screen_counter])
+    ttip(circles)
+}
 
-    circles.on("mouseover", function(d) {      
+function ttip(circles) {
+    circles.on("mouseover", function(d) {
         div.transition()
         .duration(200)
         .style('opacity', 1)
-        div.html(d.Country + " (" + d.Bin_year + ")" + "<br/> Group 10 Income: " + d.Group10 + "<br/> Group 1  Income: " + d.Group1) })
+        div.html(d.Country + " (" + d.Bin_year + ")" + "<br/> 10/10 ratio: " + (d.Group10/d.Group1).toFixed(2)) })
     .on('mousemove', function() {
         div.style('left', (d3.event.pageX + 10) + 'px')
         .style('top', (d3.event.pageY + 10) + 'px') })
@@ -122,8 +124,18 @@ function update_yr_legend() {
     .attr("width", 60)
     .attr("height", 30)
 
-    yr_legend_svg.append("text").attr("x", 20).attr("y", 20).text(years[screen_counter]).style("font-size", "16px").attr("alignment-baseline","middle")
-    yr_legend_svg.append("circle").attr("cx",10).attr("cy",20).attr("r", 8).style("fill", colors[screen_counter])  
+    yr_legend_svg.append("text")
+    .attr("x", 20)
+    .attr("y", 20)
+    .text(years[screen_counter])
+    .style("font-size", "16px")
+    .attr("alignment-baseline","middle")
+
+    yr_legend_svg.append("circle")
+    .attr("cx",10)
+    .attr("cy",20)
+    .attr("r", 8)
+    .style("fill", colors[screen_counter])  
 }
 
 function populate_filter() {
@@ -137,16 +149,22 @@ function populate_filter() {
 }
 
 function filter_data() {
-    console.log(d3.select("select").property("value"))
+
     var selected_country = d3.select("select").property("value")
-    svg.selectAll("circle").style('opacity', 0);
-    svg.selectAll("line").style('opacity', 0);
-    svg.selectAll("circle")
+    svg.selectAll("line").style('opacity', 0)
+    svg.selectAll("circle").style('opacity', 0)
+    .on("mouseover", function(d) {})
+    .on("mousemove", function(d) {})
+    .on("mouseout", function(d) {})
+
+    filtered_circles = svg.selectAll("circle")
     .filter(function(d) { return d.Country == selected_country })
     .style('opacity', 1);
     svg.selectAll("line")
     .filter(function(d) { return d.Country == selected_country })
     .style('opacity', 1);
+
+    ttip(filtered_circles)
 }
 
 function update_data() {
@@ -156,11 +174,12 @@ function update_data() {
         plot_circles()
         update_yr_legend() 
 
-        //console.log(screen_counter)
-        document.getElementById("year").innerHTML = "Current Year: " + years[screen_counter];
+        document.getElementById("year")
+        .innerHTML = "Current Year: " + years[screen_counter];
 
         if (screen_counter == 4) {
-            document.getElementById("button").innerHTML = "Refresh browser to restart slideshow or select individual country:";
+            document.getElementById("button")
+            .innerHTML = "Refresh browser to restart slideshow or select individual country:";
             populate_filter()
         }
     }
