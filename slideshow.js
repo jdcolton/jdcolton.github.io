@@ -4,7 +4,7 @@ var height = 750;
 var radius = 3
 var stroke_width = 2
 var years = [1988, 1993, 1998, 2003, 2008]
-var colors = ["black", "purple", "blue", "grey", "lightsteelblue"]
+var colors = ["black", "lightsteelblue", "blue", "grey", "purple"]
 var screen_counter = 0
 var red_count = 0
 var green_count = 0
@@ -54,7 +54,7 @@ var dataset
 async function setup_data() {
     dataset = await d3.csv(data_file_name)
     plot_circles()
-    update_yr_legend() 
+    update_yr_legend()
 }
 
 function plot_lines() {
@@ -106,6 +106,7 @@ function plot_circles() {
     .attr("cx", function(d, i) { return x(d.Group10) })
     .attr("cy", function(d, i) { return y(d.Group1) })
     .style("fill", colors[screen_counter])
+    
     ttip(circles)
 }
 
@@ -184,9 +185,6 @@ function update_data() {
 
         document.getElementById("year")
         .innerHTML = "Current Year: " + years[screen_counter];
-
-        console.log(green_count)
-        console.log(red_count)
 
         if (screen_counter == 4) {
             document.getElementById("button")
