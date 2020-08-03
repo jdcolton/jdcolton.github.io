@@ -6,6 +6,8 @@ var stroke_width = 2
 var years = [1988, 1993, 1998, 2003, 2008]
 var colors = ["black", "purple", "blue", "grey", "lightsteelblue"]
 var screen_counter = 0
+var red_count = 0
+var green_count = 0
 
 var x = d3.scaleLinear(10)
 .domain([0,80000])
@@ -57,6 +59,10 @@ async function setup_data() {
 
 function plot_lines() {
 
+    if(screen_counter > 1) { 
+        svg.selectAll("line").style('opacity', 0)
+    }
+
     var lines = svg.append("g")
     .attr("transform","translate(" + margin + "," + margin + ")")
     .selectAll()
@@ -78,9 +84,11 @@ function color_line(y2, x2, y1, x1) {
     var ratio_change = x1/y1 - x2/y2
 
     if (ratio_change > 0) {
+        green_count = green_count + 1
         return "green"
     }
     else {
+        red_count = red_count + 1
         return "red"
     }
 }
@@ -176,6 +184,9 @@ function update_data() {
 
         document.getElementById("year")
         .innerHTML = "Current Year: " + years[screen_counter];
+
+        console.log(green_count)
+        console.log(red_count)
 
         if (screen_counter == 4) {
             document.getElementById("button")
