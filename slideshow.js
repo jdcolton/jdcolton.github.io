@@ -1,14 +1,14 @@
 var margin = 70;
 var width = 1500;
-var height = 1000;
+var height = 750;
 var radius = 3
 var stroke_width = 2
 var years = [1988, 1993, 1998, 2003, 2008]
-var colors = ["black", "purple", "blue", "grey", "black"]
+var colors = ["black", "purple", "blue", "grey", "lightsteelblue"]
 var screen_counter = 0
 
 var x = d3.scaleLinear(10)
-.domain([0,75000])
+.domain([0,80000])
 .range([0,width]);
                     
 var y = d3.scaleLinear(10)
@@ -45,17 +45,14 @@ var div = d3.select("body").append("div")
 .attr("class", "tooltip")
 .attr("style", "position: absolute; opacity: 0;")
 
-var legend = d3.select("legend").append("svg")
-.attr("width", margin)
-.attr("height", margin)
-
-var data_file_name = 'https://raw.githubusercontent.com/jdcolton/cs498/master/inequality_data.csv'
+var data_file_name = 'https://raw.githubusercontent.com/jdcolton/jdcolton.github.io/master/inequality_data.csv'
 var prior_year_dict = {}
 var dataset
 
 async function setup_data() {
     dataset = await d3.csv(data_file_name)
     plot_circles()
+    update_yr_legend() 
 }
 
 function plot_lines() {
@@ -78,7 +75,10 @@ function plot_lines() {
 
 function color_line(y2, x2, y1, x1) {
     
-    if ((y2 - y1) / Math.abs(x2 - x1) >= 0 ) {
+    //var slope = (y2 - y1) / Math.abs(x2 - x1)
+    var ratio_change = x1/y1 - x2/y2
+    
+    if (ratio_change > 0) {
         return "green"
     }
     else {
@@ -104,7 +104,7 @@ function plot_circles() {
         div.transition()
         .duration(200)
         .style('opacity', 1)
-        div.html(d.Country + "<br/> Group 10 Income: " + d.Group10 + "<br/> Group 1  Income: " + d.Group1) })
+        div.html(d.Country + " (" + d.Bin_year + ")" + "<br/> Group 10 Income: " + d.Group10 + "<br/> Group 1  Income: " + d.Group1) })
     .on('mousemove', function() {
         div.style('left', (d3.event.pageX + 10) + 'px')
         .style('top', (d3.event.pageY + 10) + 'px') })
@@ -114,11 +114,39 @@ function plot_circles() {
         .style('opacity', 0) })
 }
 
-function update_legend() {
-    legend.append("circle").attr("cx",200).attr("cy",30).attr("r", 6).style("fill", "black")
-    legend.append("circle").attr("cx",300).attr("cy",30).attr("r", 6).style("fill", "blue")
-    legend.append("text").attr("x", 220).attr("y", 30).text("1988").style("font-size", "15px").attr("alignment-baseline","middle")
-    legend.append("text").attr("x", 320).attr("y", 30).text("1993").style("font-size", "15px").attr("alignment-baseline","middle")
+function update_yr_legend() {
+
+    var yr_legend_svg = d3.selectAll("yr")
+    .filter(function (d, i) { return i == screen_counter })
+    .append("svg")
+    .attr("width", 60)
+    .attr("height", 30)
+
+    yr_legend_svg.append("text").attr("x", 20).attr("y", 20).text(years[screen_counter]).style("font-size", "16px").attr("alignment-baseline","middle")
+    yr_legend_svg.append("circle").attr("cx",10).attr("cy",20).attr("r", 8).style("fill", colors[screen_counter])  
+}
+
+function populate_filter() {
+    d3.select("#select")
+    .selectAll('myOptions')
+    .data(Object.keys(prior_year_dict).sort())
+    .enter()
+    .append('option')
+    .text(function (d) { return d })
+    .attr("value", function (d) { return d })
+}
+
+function filter_data() {
+    console.log(d3.select("select").property("value"))
+    var selected_country = d3.select("select").property("value")
+    svg.selectAll("circle").style('opacity', 0);
+    svg.selectAll("line").style('opacity', 0);
+    svg.selectAll("circle")
+    .filter(function(d) { return d.Country == selected_country })
+    .style('opacity', 1);
+    svg.selectAll("line")
+    .filter(function(d) { return d.Country == selected_country })
+    .style('opacity', 1);
 }
 
 function update_data() {
@@ -126,15 +154,16 @@ function update_data() {
     if (screen_counter < 5) {
         plot_lines()
         plot_circles()
+        update_yr_legend() 
 
-        console.log(screen_counter)
+        //console.log(screen_counter)
         document.getElementById("year").innerHTML = "Current Year: " + years[screen_counter];
-        
+
         if (screen_counter == 4) {
-                document.getElementById("button").innerHTML = "Refresh browser to restart slideshow";
+            document.getElementById("button").innerHTML = "Refresh browser to restart slideshow or select individual country:";
+            populate_filter()
         }
     }
 }
 
 setup_data()
-update_legend()

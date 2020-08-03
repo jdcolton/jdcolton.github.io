@@ -1,0 +1,28 @@
+// css stuff - white
+
+svg {background-color: "#fff"}
+
+circle.active {fill:#f33}
+circle.inactive {fill:#444}
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis {
+  font-family: monospace;
+  font-size: large;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  stroke: #333;
+  shape-rendering: crispEdges;
+  /* display: none; */
+}
